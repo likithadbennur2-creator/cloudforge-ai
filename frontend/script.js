@@ -299,143 +299,77 @@ async function deleteProject(id) {
 // AI ANALYSIS
 // ===============================
 
-function analyzeProblem() {
+async function analyzeProblem() {
 
     const problem = problemInput.value.trim();
 
-
     if (!problem) {
-
-        alert(
-            "Describe your cloud problem first."
-        );
-
+        alert("Describe your cloud problem first.");
         return;
     }
 
-
     analyzeBtn.textContent = "Analyzing...";
-
     analyzeBtn.disabled = true;
 
+    try {
 
-    /*
-     * TEMPORARY AI SIMULATION
-     *
-     * This is NOT the real AI yet.
-     *
-     * Later this function will call:
-     *
-     * Frontend
-     *     ↓
-     * Spring Boot
-     *     ↓
-     * AI Service / LLM
-     *     ↓
-     * Infrastructure Recommendation
-     */
+        const response = await fetch(
+            "http://localhost:8080/api/ai/analyze",
+            {
+                method: "POST",
 
+                headers: {
+                    "Content-Type": "application/json"
+                },
 
-    setTimeout(() => {
-
-        const lowerProblem = problem.toLowerCase();
-
-
-        let instances = 2;
-
-        let strategy = "Horizontal";
-
-        let level = "Medium";
-
-        let message =
-            "CloudForge detected a potential infrastructure scaling requirement based on your description.";
-
-
-        if (
-            lowerProblem.includes("traffic") ||
-            lowerProblem.includes("visitors") ||
-            lowerProblem.includes("users")
-        ) {
-
-            instances = 3;
-
-            strategy = "Horizontal";
-
-            level = "High";
-
-            message =
-                "Your description indicates increased application traffic. CloudForge recommends distributing the workload across multiple application instances instead of relying on a single server. A load balancer can distribute incoming requests between the instances.";
-
-        }
-
-
-        if (
-            lowerProblem.includes("slow") ||
-            lowerProblem.includes("latency") ||
-            lowerProblem.includes("performance")
-        ) {
-
-            instances = Math.max(
-                instances,
-                3
-            );
-
-            strategy = "Horizontal";
-
-            level = "High";
-
-            message =
-                "The performance issue may indicate that the current application capacity is insufficient. CloudForge recommends increasing application capacity and distributing traffic across multiple instances.";
-
-        }
-
-
-        if (
-            lowerProblem.includes("cost") ||
-            lowerProblem.includes("expensive") ||
-            lowerProblem.includes("money")
-        ) {
-
-            instances = 1;
-
-            strategy = "Right-size";
-
-            level = "Medium";
-
-            message =
-                "CloudForge detected a potential cost-optimization requirement. Instead of simply adding infrastructure, the system should analyze utilization and right-size the current resources.";
-
-        }
-
-
-        instanceCount.textContent = instances;
-
-        scalingStrategy.textContent = strategy;
-
-        priority.textContent = level;
-
-        analysisMessage.textContent = message;
-
-
-        aiResult.classList.remove(
-            "hidden"
+                body: JSON.stringify({
+                    projectId: 4,
+                    problem: problem
+                })
+            }
         );
 
+        if (!response.ok) {
+            throw new Error("AI analysis failed");
+        }
 
-        analyzeBtn.textContent =
-            "Analyze Problem";
+        const result = await response.text();
 
-        analyzeBtn.disabled = false;
+console.log("CloudForge AI response:", result);
 
+instanceCount.textContent = "-";
+scalingStrategy.textContent = "AI Recommended";
+priority.textContent = "Analyzed";
+
+analysisMessage.textContent = result;
+
+aiResult.classList.remove("hidden");
+
+aiResult.scrollIntoView({
+    behavior: "smooth",
+    block: "center"
+});
+
+        aiResult.classList.remove("hidden");
 
         aiResult.scrollIntoView({
             behavior: "smooth",
             block: "center"
         });
 
+    } catch (error) {
 
-    }, 1200);
+        console.error(error);
 
+        alert(
+            "CloudForge could not connect to the AI service."
+        );
+
+    } finally {
+
+        analyzeBtn.textContent = "Analyze Problem";
+        analyzeBtn.disabled = false;
+    }
 }
 
 
