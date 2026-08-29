@@ -1,0 +1,17 @@
+{
+  "actions": {
+    "horizontal_scaling": {
+      "allowed": true,
+      "maxInstances": 10,
+      "terraformModule": "compute-scaling"
+    },
+    "load_balancer": {
+      "allowed": true,
+      "terraformModule": "load-balancer"
+    },
+    "cdn": {
+      "allowed": true,
+      "terraformModule": "cdn"
+    }
+  }
+}
