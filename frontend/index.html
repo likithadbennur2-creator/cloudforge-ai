@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>CloudForge AI</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- SIDEBAR -->
+
+    <aside class="sidebar">
+
+        <div class="brand">
+            <div class="brand-icon">☁</div>
+
+            <div>
+                <h2>CloudForge</h2>
+                <span>AI Cloud Platform</span>
+            </div>
+        </div>
+
+
+        <nav class="navigation">
+
+            <p class="nav-title">WORKSPACE</p>
+
+            <button class="nav-item active">
+                <span>⌂</span>
+                Dashboard
+            </button>
+
+            <button class="nav-item">
+                <span>✦</span>
+                AI Assistant
+            </button>
+
+            <button class="nav-item">
+                <span>▣</span>
+                Projects
+            </button>
+
+            <p class="nav-title">INFRASTRUCTURE</p>
+
+            <button class="nav-item">
+                <span>☁</span>
+                Infrastructure
+            </button>
+
+            <button class="nav-item">
+                <span>↗</span>
+                Deployments
+            </button>
+
+            <button class="nav-item">
+                <span>◉</span>
+                Monitoring
+            </button>
+
+            <p class="nav-title">SYSTEM</p>
+
+            <button class="nav-item">
+                <span>⚙</span>
+                Settings
+            </button>
+
+        </nav>
+
+
+        <div class="sidebar-bottom">
+
+            <div class="system-status">
+                <span class="status-dot"></span>
+
+                <div>
+                    <strong>System Online</strong>
+                    <small>CloudForge API connected</small>
+                </div>
+            </div>
+
+            <div class="user-card">
+                <div class="avatar">U</div>
+
+                <div>
+                    <strong>Developer</strong>
+                    <small>Cloud Engineer</small>
+                </div>
+            </div>
+
+        </div>
+
+    </aside>
+
+
+    <!-- MAIN -->
+
+    <main class="main">
+
+        <!-- TOP BAR -->
+
+        <header class="topbar">
+
+            <div>
+                <p class="breadcrumb">Workspace / Dashboard</p>
+                <h1>Good to see you 👋</h1>
+            </div>
+
+            <div class="topbar-actions">
+
+                <div class="backend-status">
+                    <span class="status-dot"></span>
+                    Backend Online
+                </div>
+
+                <button class="icon-button">🔔</button>
+
+                <div class="top-avatar">U</div>
+
+            </div>
+
+        </header>
+
+
+        <!-- DASHBOARD -->
+
+        <section class="dashboard">
+
+
+            <!-- AI HERO -->
+
+            <section class="ai-card">
+
+                <div class="ai-glow"></div>
+
+                <div class="ai-content">
+
+                    <div class="ai-badge">
+                        <span>✦</span>
+                        CLOUDFORGE AI
+                    </div>
+
+                    <h2>
+                        Tell me what's happening
+                        <br>
+                        with your infrastructure.
+                    </h2>
+
+                    <p>
+                        Describe your cloud problem in plain English.
+                        CloudForge will analyze it and recommend an
+                        infrastructure solution.
+                    </p>
+
+
+                    <div class="ai-input-wrapper">
+
+                        <textarea
+                            id="problemInput"
+                            placeholder="Example: My website is getting 50,000 visitors per day and the server is becoming slow..."
+                        ></textarea>
+
+                        <div class="ai-input-footer">
+
+                            <div class="input-hint">
+                                ✦ AI-powered infrastructure analysis
+                            </div>
+
+                            <button id="analyzeBtn" class="analyze-button">
+                                Analyze Problem
+                                <span>→</span>
+                            </button>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="suggestions">
+
+                        <button class="suggestion">
+                            🚀 High traffic
+                        </button>
+
+                        <button class="suggestion">
+                            🐌 Slow application
+                        </button>
+
+                        <button class="suggestion">
+                            💰 Reduce cloud cost
+                        </button>
+
+                        <button class="suggestion">
+                            📈 Scale infrastructure
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- AI RESULT -->
+
+            <section id="aiResult" class="ai-result hidden">
+
+                <div class="result-header">
+
+                    <div>
+                        <div class="ai-badge">
+                            <span>✦</span>
+                            ANALYSIS
+                        </div>
+
+                        <h2>Infrastructure Recommendation</h2>
+                    </div>
+
+                    <span class="recommendation-status">
+                        READY
+                    </span>
+
+                </div>
+
+
+                <div class="result-body">
+
+                    <div class="analysis-message" id="analysisMessage">
+                    </div>
+
+
+                    <div class="recommendation-grid">
+
+                        <div class="recommendation-card">
+
+                            <span class="recommendation-icon">▣</span>
+
+                            <div>
+                                <small>Recommended Instances</small>
+                                <strong id="instanceCount">3</strong>
+                            </div>
+
+                        </div>
+
+
+                        <div class="recommendation-card">
+
+                            <span class="recommendation-icon">↗</span>
+
+                            <div>
+                                <small>Scaling Strategy</small>
+                                <strong id="scalingStrategy">
+                                    Horizontal
+                                </strong>
+                            </div>
+
+                        </div>
+
+
+                        <div class="recommendation-card">
+
+                            <span class="recommendation-icon">◉</span>
+
+                            <div>
+                                <small>Priority</small>
+                                <strong id="priority">
+                                    Medium
+                                </strong>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="plan-actions">
+
+                        <button class="secondary-button">
+                            Review Plan
+                        </button>
+
+                        <button id="approveBtn" class="primary-button">
+                            Approve Infrastructure Plan →
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- STATS -->
+
+            <section class="stats-grid">
+
+                <div class="stat-card">
+
+                    <div class="stat-top">
+                        <span>Projects</span>
+                        <span class="stat-icon">▣</span>
+                    </div>
+
+                    <strong id="projectCount">0</strong>
+
+                    <small>CloudForge projects</small>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-top">
+                        <span>Infrastructure</span>
+                        <span class="stat-icon">☁</span>
+                    </div>
+
+                    <strong>—</strong>
+
+                    <small>Not configured yet</small>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-top">
+                        <span>Deployments</span>
+                        <span class="stat-icon">↗</span>
+                    </div>
+
+                    <strong>—</strong>
+
+                    <small>Coming soon</small>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-top">
+                        <span>Monitoring</span>
+                        <span class="stat-icon">◉</span>
+                    </div>
+
+                    <strong>—</strong>
+
+                    <small>Coming soon</small>
+
+                </div>
+
+            </section>
+
+
+            <!-- PROJECTS -->
+
+            <section class="projects-section">
+
+                <div class="section-heading">
+
+                    <div>
+                        <p class="section-label">WORKSPACE</p>
+                        <h2>Recent Projects</h2>
+                    </div>
+
+                    <button id="refreshBtn" class="refresh-button">
+                        ↻ Refresh
+                    </button>
+
+                </div>
+
+
+                <div id="projectList" class="project-list">
+
+                    <div class="loading">
+                        Loading projects...
+                    </div>
+
+                </div>
+
+            </section>
+
+
+        </section>
+
+    </main>
+
+
+    <!-- SCRIPT -->
+
+    <script src="script.js"></script>
+
+</body>
+
+</html>
