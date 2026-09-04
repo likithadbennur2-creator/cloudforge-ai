@@ -1,7 +1,15 @@
 package com.cloudforge.model;
 
-import jakarta.persistence.*;
 import java.time.LocalDateTime;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "projects")
@@ -19,6 +27,10 @@ public class Project {
     private ProjectStatus status;
 
     private LocalDateTime createdAt;
+
+    // Stores Gemini's JSON response
+    @Column(columnDefinition = "TEXT")
+    private String aiAnalysis;
 
     public Project() {
     }
@@ -75,5 +87,13 @@ public class Project {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public String getAiAnalysis() {
+        return aiAnalysis;
+    }
+
+    public void setAiAnalysis(String aiAnalysis) {
+        this.aiAnalysis = aiAnalysis;
     }
 }
