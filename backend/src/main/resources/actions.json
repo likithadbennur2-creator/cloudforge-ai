@@ -6,19 +6,22 @@
       "description": "Increase the number of compute instances to handle high traffic",
       "terraformModule": "compute",
       "minInstances": 2,
-      "maxInstances": 10
+      "maxInstances": 10,
+      "commandTemplate": "command-templates/compute/scale-compute.sh"
     },
     {
       "id": "load_balancer",
       "name": "Create Load Balancer",
       "description": "Distribute incoming traffic across multiple instances",
-      "terraformModule": "load-balancer"
+      "terraformModule": "load-balancer",
+      "commandTemplate": "command-templates/load-balancer/create-load-balancer.sh"
     },
     {
       "id": "cdn",
       "name": "Enable CDN",
       "description": "Cache static content closer to users",
-      "terraformModule": "cdn"
+      "terraformModule": "cdn",
+      "commandTemplate": "command-templates/cdn/enable-cdn.sh"
     }
   ]
 }
