@@ -1,11 +1,13 @@
 package com.cloudforge.ai;
 
-import java.util.HashMap;
-import java.util.Map;
-
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 public class GeminiService {
@@ -14,14 +16,16 @@ public class GeminiService {
     private String apiKey;
 
     private final RestTemplate restTemplate = new RestTemplate();
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public String analyzeProblem(String problem) {
+    public AIAnalysisResponse analyzeProblem(String problem) {
 
-        String url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key="
-                + apiKey;
+        String url =
+                "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key="
+                        + apiKey;
 
         String prompt = """
-                You are CloudForge AI, a cloud infrastructure planning assistant.
+                You are CloudForge AI, a cloud infrastructure assistant.
 
                 Analyze the user's infrastructure problem.
 
@@ -29,15 +33,12 @@ public class GeminiService {
                 %s
 
                 Return ONLY valid JSON.
-                Do not use markdown.
-                Do not use ```json.
-                Do not provide explanations outside the JSON.
 
-                The JSON must have exactly these fields:
+                Use exactly this structure:
 
                 {
-                  "problem": "short description of the problem",
-                  "recommendation": "recommended infrastructure strategy",
+                  "problem": "short description",
+                  "recommendation": "what CloudForge should do",
                   "instances": 1,
                   "loadBalancer": false,
                   "cdn": false,
@@ -45,15 +46,14 @@ public class GeminiService {
                 }
 
                 Rules:
-
-                - instances must be a whole number.
-                - loadBalancer must be true or false.
-                - cdn must be true or false.
-                - priority must be LOW, MEDIUM, or HIGH.
-                - Do NOT execute commands.
-                - Do NOT provide shell commands.
-                - Do NOT create Terraform code.
-                - Only create an infrastructure recommendation.
+                - instances must be a number
+                - loadBalancer must be true or false
+                - cdn must be true or false
+                - priority must be LOW, MEDIUM, or HIGH
+                - Do not include markdown
+                - Do not include ```json
+                - Do not provide shell commands
+                - Do not execute anything
                 """.formatted(problem);
 
         Map<String, Object> textPart = new HashMap<>();
@@ -62,40 +62,44 @@ public class GeminiService {
         Map<String, Object> content = new HashMap<>();
         content.put("parts", new Object[]{textPart});
 
-        Map<String, Object> generationConfig = new HashMap<>();
-        generationConfig.put("responseMimeType", "application/json");
-
         Map<String, Object> request = new HashMap<>();
         request.put("contents", new Object[]{content});
-        request.put("generationConfig", generationConfig);
 
-        Map<String, Object> response = restTemplate.postForObject(
+        String rawResponse = restTemplate.postForObject(
                 url,
                 request,
-                Map.class
+                String.class
         );
 
-        if (response == null) {
-            throw new RuntimeException("Empty response from Gemini");
-        }
-
         try {
-            Map<String, Object> candidate =
-                    (Map<String, Object>) ((java.util.List<?>) response.get("candidates")).get(0);
 
-            Map<String, Object> responseContent =
-                    (Map<String, Object>) candidate.get("content");
+            JsonNode root = objectMapper.readTree(rawResponse);
 
-            java.util.List<?> parts =
-                    (java.util.List<?>) responseContent.get("parts");
+            String text = root
+                    .path("candidates")
+                    .get(0)
+                    .path("content")
+                    .path("parts")
+                    .get(0)
+                    .path("text")
+                    .asText();
 
-            Map<String, Object> part =
-                    (Map<String, Object>) parts.get(0);
+            text = text
+                    .replace("```json", "")
+                    .replace("```", "")
+                    .trim();
 
-            return (String) part.get("text");
+            return objectMapper.readValue(
+                    text,
+                    AIAnalysisResponse.class
+            );
 
         } catch (Exception e) {
-            throw new RuntimeException("Could not parse Gemini response", e);
+
+            throw new RuntimeException(
+                    "Failed to parse Gemini response: " + rawResponse,
+                    e
+            );
         }
     }
 }

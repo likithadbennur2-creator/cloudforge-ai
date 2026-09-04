@@ -71,16 +71,13 @@ function displayProjects(projects) {
         return;
     }
 
-
     projectList.innerHTML = "";
-
 
     projects.forEach(project => {
 
         const card = document.createElement("div");
 
         card.className = "project-card";
-
 
         card.innerHTML = `
 
@@ -94,18 +91,18 @@ function displayProjects(projects) {
 
             </div>
 
-
             <p>
-                ${escapeHtml(project.description || "No description provided.")}
+                ${escapeHtml(
+                    project.description ||
+                    "No description provided."
+                )}
             </p>
-
 
             <div class="project-meta">
 
                 <small>
                     Project ID: ${project.id}
                 </small>
-
 
                 <div class="project-actions">
 
@@ -120,9 +117,7 @@ function displayProjects(projects) {
                 </div>
 
             </div>
-
         `;
-
 
         projectList.appendChild(card);
 
@@ -154,16 +149,11 @@ async function createProject(name, description) {
 
         });
 
-
         if (!response.ok) {
-
             throw new Error("Failed to create project");
-
         }
 
-
         await loadProjects();
-
 
     } catch (error) {
 
@@ -186,28 +176,23 @@ async function editProject(id) {
         "Enter the new project name:"
     );
 
-
     if (!name) {
         return;
     }
-
 
     const description = prompt(
         "Enter the new project description:"
     );
 
-
     if (!description) {
         return;
     }
-
 
     try {
 
         const response = await fetch(
             `${API_URL}/${id}`,
             {
-
                 method: "PUT",
 
                 headers: {
@@ -218,22 +203,16 @@ async function editProject(id) {
                     name: name,
                     description: description
                 })
-
             }
         );
 
-
         if (!response.ok) {
-
             throw new Error(
                 "Failed to update project"
             );
-
         }
 
-
         await loadProjects();
-
 
     } catch (error) {
 
@@ -256,11 +235,9 @@ async function deleteProject(id) {
         "Are you sure you want to delete this project?"
     );
 
-
     if (!confirmed) {
         return;
     }
-
 
     try {
 
@@ -271,18 +248,13 @@ async function deleteProject(id) {
             }
         );
 
-
         if (!response.ok) {
-
             throw new Error(
                 "Failed to delete project"
             );
-
         }
 
-
         await loadProjects();
-
 
     } catch (error) {
 
@@ -296,7 +268,7 @@ async function deleteProject(id) {
 
 
 // ===============================
-// AI ANALYSIS
+// AI ANALYSIS - API 1
 // ===============================
 
 async function analyzeProblem() {
@@ -304,7 +276,11 @@ async function analyzeProblem() {
     const problem = problemInput.value.trim();
 
     if (!problem) {
-        alert("Describe your cloud problem first.");
+
+        alert(
+            "Describe your cloud problem first."
+        );
+
         return;
     }
 
@@ -323,35 +299,65 @@ async function analyzeProblem() {
                 },
 
                 body: JSON.stringify({
-                    projectId: 4,
+                    projectId: 1,
                     problem: problem
                 })
             }
         );
 
         if (!response.ok) {
-            throw new Error("AI analysis failed");
+
+            throw new Error(
+                `AI analysis failed: ${response.status}`
+            );
         }
 
-        const result = await response.text();
+        const result = await response.json();
 
-console.log("CloudForge AI response:", result);
+        console.log(
+            "CloudForge AI analysis:",
+            result
+        );
 
-instanceCount.textContent = "-";
-scalingStrategy.textContent = "AI Recommended";
-priority.textContent = "Analyzed";
+        // Handle ApiResponse wrapper if present
+        const data =
+            result.data ||
+            result.result ||
+            result;
 
-analysisMessage.textContent = result;
+        // ===============================
+        // DISPLAY AI ANALYSIS
+        // ===============================
 
-aiResult.classList.remove("hidden");
+        instanceCount.textContent =
+            data.instances ??
+            data.recommendedInstances ??
+            "—";
 
-aiResult.scrollIntoView({
-    behavior: "smooth",
-    block: "center"
-});
+        scalingStrategy.textContent =
+            data.scalingStrategy ||
+            data.strategy ||
+            (
+                data.loadBalancer
+                    ? "Horizontal Scaling + Load Balancer"
+                    : "Standard Scaling"
+            );
 
+        priority.textContent =
+            data.priority ||
+            "Medium";
+
+        analysisMessage.textContent =
+            data.recommendation ||
+            data.analysis ||
+            data.message ||
+            data.suggestion ||
+            "Infrastructure analysis completed.";
+
+        // Show result
         aiResult.classList.remove("hidden");
 
+        // Scroll to result
         aiResult.scrollIntoView({
             behavior: "smooth",
             block: "center"
@@ -359,7 +365,10 @@ aiResult.scrollIntoView({
 
     } catch (error) {
 
-        console.error(error);
+        console.error(
+            "CloudForge AI Error:",
+            error
+        );
 
         alert(
             "CloudForge could not connect to the AI service."
@@ -367,7 +376,9 @@ aiResult.scrollIntoView({
 
     } finally {
 
-        analyzeBtn.textContent = "Analyze Problem";
+        analyzeBtn.textContent =
+            "Analyze Problem";
+
         analyzeBtn.disabled = false;
     }
 }
@@ -388,7 +399,6 @@ document.querySelectorAll(
             const text =
                 button.textContent.toLowerCase();
 
-
             if (text.includes("traffic")) {
 
                 problemInput.value =
@@ -396,33 +406,26 @@ document.querySelectorAll(
 
             }
 
-            else if (
-                text.includes("slow")
-            ) {
+            else if (text.includes("slow")) {
 
                 problemInput.value =
                     "My application response time is becoming very slow.";
 
             }
 
-            else if (
-                text.includes("cost")
-            ) {
+            else if (text.includes("cost")) {
 
                 problemInput.value =
                     "My cloud infrastructure is becoming too expensive. Help me reduce the cost.";
 
             }
 
-            else if (
-                text.includes("scale")
-            ) {
+            else if (text.includes("scale")) {
 
                 problemInput.value =
                     "My application needs to scale automatically when traffic increases.";
 
             }
-
 
             problemInput.focus();
 
@@ -482,7 +485,6 @@ function escapeHtml(value) {
     div.textContent = value;
 
     return div.innerHTML;
-
 }
 
 

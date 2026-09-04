@@ -1,0 +1,20 @@
+{
+  "requirements" : {
+    "application_type" : "web_application",
+    "traffic_level" : "high",
+    "daily_users" : 50000,
+    "availability" : "high",
+    "auto_scaling" : true,
+    "load_balancer" : true,
+    "cdn" : true,
+    "compute" : {
+      "required" : true,
+      "minimum_instances" : 2
+    },
+    "region" : "",
+    "database" : {
+      "required" : false,
+      "type" : ""
+    }
+  }
+}
