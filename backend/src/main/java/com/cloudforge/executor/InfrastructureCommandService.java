@@ -27,6 +27,7 @@ public class InfrastructureCommandService {
     public Map<String, Object> generateCommands(String projectId) {
 
         try {
+
             // -----------------------------------------
             // 1. Read requirements.json
             // -----------------------------------------
@@ -78,7 +79,37 @@ public class InfrastructureCommandService {
 
 
             // -----------------------------------------
-            // 4. Check compute requirement
+            // 4. Region
+            // -----------------------------------------
+
+            String region =
+                    requirements.path("region").asText();
+
+            if (region == null || region.isBlank()) {
+                region = "asia-south1";
+            }
+
+
+            // -----------------------------------------
+            // 5. Common variables
+            // -----------------------------------------
+
+            Map<String, String> variables =
+                    new HashMap<>();
+
+            variables.put(
+                    "PROJECT_ID",
+                    projectId
+            );
+
+            variables.put(
+                    "REGION",
+                    region
+            );
+
+
+            // -----------------------------------------
+            // 6. Compute requirement
             // -----------------------------------------
 
             JsonNode compute =
@@ -90,80 +121,66 @@ public class InfrastructureCommandService {
                         compute.path("minimum_instances")
                                 .asInt(1);
 
-                String region =
-                        requirements.path("region")
-                                .asText();
+                variables.put(
+                        "INSTANCE_COUNT",
+                        String.valueOf(instances)
+                );
 
-                if (region == null || region.isBlank()) {
-                    region = "asia-south1";
-                }
-
-
-                // -----------------------------------------
-                // Find compute action in actions.json
-                // -----------------------------------------
-
-                for (JsonNode action : actionDefinitions) {
-
-                    if ("scale_compute".equals(
-                            action.path("id").asText())) {
-
-                        String templatePath =
-                                action.path("commandTemplate")
-                                        .asText();
-
-                        if (templatePath == null ||
-                                templatePath.isBlank()) {
-
-                            throw new RuntimeException(
-                                    "commandTemplate missing for scale_compute"
-                            );
-                        }
-
-
-                        // -----------------------------------------
-                        // Prepare template variables
-                        // -----------------------------------------
-
-                        Map<String, String> variables =
-                                new HashMap<>();
-
-                        variables.put(
-                                "PROJECT_ID",
-                                projectId
+                String command =
+                        generateActionCommand(
+                                actionDefinitions,
+                                "scale_compute",
+                                variables
                         );
 
-                        variables.put(
-                                "REGION",
-                                region
-                        );
-
-                        variables.put(
-                                "INSTANCE_COUNT",
-                                String.valueOf(instances)
-                        );
-
-
-                        // -----------------------------------------
-                        // Generate command
-                        // -----------------------------------------
-
-                        String command =
-                                commandGeneratorService.generateCommand(
-                                        templatePath,
-                                        variables
-                                );
-
-                        generatedCommands.add(command);
-
-                        break;
-                    }
-                }
+                generatedCommands.add(command);
             }
 
 
             // -----------------------------------------
-            // 5. Build response
+            // 7. Load balancer requirement
+            // -----------------------------------------
+
+            boolean loadBalancerRequired =
+                    requirements.path("load_balancer")
+                            .asBoolean(false);
+
+            if (loadBalancerRequired) {
+
+                String command =
+                        generateActionCommand(
+                                actionDefinitions,
+                                "load_balancer",
+                                variables
+                        );
+
+                generatedCommands.add(command);
+            }
+
+
+            // -----------------------------------------
+            // 8. CDN requirement
+            // -----------------------------------------
+
+            boolean cdnRequired =
+                    requirements.path("cdn")
+                            .asBoolean(false);
+
+            if (cdnRequired) {
+
+                String command =
+                        generateActionCommand(
+                                actionDefinitions,
+                                "cdn",
+                                variables
+                        );
+
+                generatedCommands.add(command);
+            }
+
+
+            // -----------------------------------------
+            // 9. Build response
             // -----------------------------------------
 
             Map<String, Object> response =
@@ -180,6 +197,11 @@ public class InfrastructureCommandService {
             );
 
             response.put(
+                    "region",
+                    region
+            );
+
+            response.put(
                     "commands",
                     generatedCommands
             );
@@ -193,5 +215,46 @@ public class InfrastructureCommandService {
                     e
             );
         }
+    }
+
+
+    // =================================================
+    // Generate command from actions.json
+    // =================================================
+
+    private String generateActionCommand(
+            JsonNode actionDefinitions,
+            String actionId,
+            Map<String, String> variables) {
+
+        for (JsonNode action : actionDefinitions) {
+
+            if (actionId.equals(
+                    action.path("id").asText())) {
+
+                String templatePath =
+                        action.path("commandTemplate")
+                                .asText();
+
+                if (templatePath == null ||
+                        templatePath.isBlank()) {
+
+                    throw new RuntimeException(
+                            "commandTemplate missing for action: "
+                                    + actionId
+                    );
+                }
+
+                return commandGeneratorService.generateCommand(
+                        templatePath,
+                        variables
+                );
+            }
+        }
+
+        throw new RuntimeException(
+                "Action not found in actions.json: "
+                        + actionId
+        );
     }
 }
